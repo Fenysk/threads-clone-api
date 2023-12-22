@@ -24,25 +24,42 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  Profile Profile?
+  Profile    Profile?
+  Followings Follow[] @relation("Following")
+  Followers  Follow[] @relation("Followers")
 
   @@map("users")
 }
 
 model Profile {
-  pseudo      String @unique
+  pseudo      String @id @unique
   displayName String
 
   biography String?
   avatarUrl String?
 
   userId String @unique
-  user   User   @relation(fields: [userId], references: [id])
+  User   User   @relation(fields: [userId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@map("profiles")
+}
+
+model Follow {
+  followerId String
+  Follower   User   @relation("Followers", fields: [followerId], references: [id], onDelete: Cascade)
+
+  followingId String
+  Following   User   @relation("Following", fields: [followingId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@id([followerId, followingId])
+  @@unique([followerId, followingId])
+  @@map("follows")
 }
 
 enum Roles {

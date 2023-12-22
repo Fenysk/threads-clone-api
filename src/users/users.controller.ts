@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, Put, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Put, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { GetUser, Roles } from './decorator';
 import { Role } from './entities';
@@ -45,7 +45,7 @@ export class UsersController {
     }
 
     @Roles(Role.USER)
-    @Put('update/password/me')
+    @Patch('update/password/me')
     @HttpCode(HttpStatus.OK)
     async updateMyPassword(
         @GetUser('sub') user_id: string,

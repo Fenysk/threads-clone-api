@@ -70,9 +70,26 @@ export class UsersService {
     }
 
     async updateUser(id: string, data: any): Promise<object> {
+
+        const profileFields = ['pseudo', 'displayName', 'biography', 'avatarUrl'];
+
+        const profileData = profileFields.reduce((object, field) => {
+            if (data[field]) {
+                object[field] = data[field];
+                delete data[field];
+            }
+            return object;
+        }, {});
+
         const updatedUser = await this.prismaService.user.update({
             where: { id },
-            data
+            data: {
+                ...data,
+                Profile: {
+                    update: profileData
+                }
+            },
+            include: { Profile: true }
         });
         return updatedUser;
     }
@@ -91,7 +108,8 @@ export class UsersService {
 
         const updatedUser = await this.prismaService.user.update({
             where: { id },
-            data: { password: hashedPassword }
+            data: { password: hashedPassword },
+            include: { Profile: true }
         });
 
         return updatedUser;
@@ -109,4 +127,5 @@ export class UsersService {
         }
 
     }
+
 }
