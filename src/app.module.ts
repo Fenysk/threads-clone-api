@@ -7,6 +7,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { EmailModule } from './email/email.module';
 import { ConfigModule } from '@nestjs/config';
 import { FollowsModule } from './follows/follows.module';
+import { ThreadsModule } from './threads/threads.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { FollowsModule } from './follows/follows.module';
     UsersModule,
     EmailModule,
     FollowsModule,
+    ThreadsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

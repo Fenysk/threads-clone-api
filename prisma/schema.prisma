@@ -26,8 +26,10 @@ model User {
   updatedAt DateTime @updatedAt
 
   Profile    Profile?
-  Followings Follow[] @relation("Following")
-  Followers  Follow[] @relation("Followers")
+  Followings Follow[]   @relation("FollowingRelation")
+  Followers  Follow[]   @relation("FollowersRelation")
+  Threads    Thread[]
+  PollVotes  PollVote[]
 
   @@map("users")
 }
@@ -50,10 +52,10 @@ model Profile {
 
 model Follow {
   followerId String
-  Follower   User   @relation("Followers", fields: [followerId], references: [id], onDelete: Cascade)
+  Follower   User   @relation("FollowersRelation", fields: [followerId], references: [id], onDelete: Cascade)
 
   followingId String
-  Following   User   @relation("Following", fields: [followingId], references: [id], onDelete: Cascade)
+  Following   User   @relation("FollowingRelation", fields: [followingId], references: [id], onDelete: Cascade)
 
   accepted Boolean @default(false)
 
@@ -63,6 +65,71 @@ model Follow {
   @@id([followerId, followingId])
   @@unique([followerId, followingId])
   @@map("follows")
+}
+
+model Thread {
+  id      String  @id @unique
+  content String  @db.VarChar(500)
+  subject String? @db.VarChar(50)
+
+  userId String
+  User   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  parentId String?
+  Parent   Thread? @relation("ThreadsRelation", fields: [parentId], references: [id], onDelete: Cascade)
+
+  Children Thread[] @relation("ThreadsRelation")
+  Poll     Poll?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("threads")
+}
+
+model Poll {
+  id String @id @unique
+
+  threadId String @unique
+  Thread   Thread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+
+  Options PollOption[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("polls")
+}
+
+model PollOption {
+  id String @id @unique
+
+  pollId String
+  Poll   Poll   @relation(fields: [pollId], references: [id], onDelete: Cascade)
+
+  content String @db.VarChar(25)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  Votes PollVote[]
+
+  @@map("poll_options")
+}
+
+model PollVote {
+  id String @id @unique
+
+  pollOptionId String
+  PollOption   PollOption @relation(fields: [pollOptionId], references: [id], onDelete: Cascade)
+
+  userId String
+  User   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("poll_votes")
 }
 
 enum Roles {
