@@ -29,6 +29,28 @@ export class FollowsService {
         return followers;
     }
 
+    async acceptFollower(userId: string, pseudo: string): Promise<object> {
+        const follower = await this.prismaService.profile.findUnique({
+            where: { pseudo },
+            include: { User: true }
+        });
+
+        if (!follower)
+            throw new NotFoundException('User not found');
+
+        const follow = await this.prismaService.follow.update({
+            where: {
+                followerId_followingId: {
+                    followerId: follower.User.id,
+                    followingId: userId
+                }
+            },
+            data: { accepted: true }
+        });
+
+        return follow;
+    }
+
     async followUser(userId: string, pseudo: string): Promise<object> {
         const userToFollow = await this.prismaService.profile.findUnique({
             where: { pseudo },
@@ -41,10 +63,13 @@ export class FollowsService {
         if (userToFollow.User.id === userId)
             throw new ConflictException('You cannot follow yourself');
 
+        const isAccepted = userToFollow.User.isPrivate ? false : true
+
         const follow = await this.prismaService.follow.create({
             data: {
                 followerId: userId,
-                followingId: userToFollow.User.id
+                followingId: userToFollow.User.id,
+                accepted: isAccepted
             }
         });
 

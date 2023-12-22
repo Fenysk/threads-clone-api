@@ -1,4 +1,4 @@
-import { Controller, Delete, Get, HttpCode, HttpStatus, Param, Post } from '@nestjs/common';
+import { Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, Put } from '@nestjs/common';
 import { FollowsService } from './follows.service';
 import { Role } from 'src/users/entities';
 import { GetUser, Roles } from 'src/users/decorator';
@@ -17,6 +17,15 @@ export class FollowsController {
     @Get('mine/followers')
     async getMyFollowers(@GetUser('sub') user_id: string): Promise<object[]> {
         return await this.followsService.getMyFollowers(user_id);
+    }
+
+    @Roles(Role.USER)
+    @Put('accept/:pseudo')
+    async acceptFollower(
+        @GetUser('sub') user_id: string,
+        @Param('pseudo') pseudo: string
+    ): Promise<object> {
+        return await this.followsService.acceptFollower(user_id, pseudo);
     }
     
 

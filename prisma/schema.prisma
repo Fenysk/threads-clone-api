@@ -15,6 +15,7 @@ model User {
   email     String  @unique
   password  String
   confirmed Boolean @default(false)
+  isPrivate Boolean @default(false)
 
   confirmationId String? @unique
   refreshToken   String? @unique
@@ -53,6 +54,8 @@ model Follow {
 
   followingId String
   Following   User   @relation("Following", fields: [followingId], references: [id], onDelete: Cascade)
+
+  accepted Boolean @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
