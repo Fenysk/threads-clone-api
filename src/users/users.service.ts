@@ -71,7 +71,7 @@ export class UsersService {
 
     async updateUser(id: string, data: any): Promise<object> {
 
-        const profileFields = ['pseudo', 'displayName', 'biography', 'avatarUrl'];
+        const profileFields = ['pseudo', 'displayName', 'biography', 'avatarUrl', 'link'];
 
         const profileData = profileFields.reduce((object, field) => {
             if (data[field]) {

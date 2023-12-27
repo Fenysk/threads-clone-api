@@ -42,6 +42,7 @@ model Profile {
 
   biography String?
   avatarUrl String?
+  link      String?
 
   userId String @unique
   User   User   @relation(fields: [userId], references: [id])
