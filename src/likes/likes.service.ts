@@ -8,7 +8,14 @@ export class LikesService {
     async getMyLikedThreads(userId: string) {
         const likedThreads = await this.prismaService.like.findMany({
             where: { userId },
-            include: { Thread: { include: { Poll: { include: { Options: true } } } } },
+            include: {
+                Thread: {
+                    include: {
+                        User: { include: { Profile: true } },
+                        Poll: { include: { Options: true } },
+                    }
+                }
+            },
         });
 
         if (!likedThreads.length)

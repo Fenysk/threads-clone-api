@@ -10,6 +10,7 @@ import { FollowsModule } from './follows/follows.module';
 import { ThreadsModule } from './threads/threads.module';
 import { LikesModule } from './likes/likes.module';
 import { PollsModule } from './polls/polls.module';
+import { RepostsModule } from './reposts/reposts.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { PollsModule } from './polls/polls.module';
     ThreadsModule,
     LikesModule,
     PollsModule,
+    RepostsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
