@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
 import { ThreadsService } from './threads.service';
 import { Role } from 'src/users/entities';
 import { GetUser, Roles } from 'src/users/decorator';
@@ -21,6 +21,14 @@ export class ThreadsController {
         @GetUser('sub') userId: string,
     ) {
         return this.threadsService.getMyThreads(userId);
+    }
+
+    @Roles(Role.USER)
+    @Get(':threadId')
+    async getThread(
+        @Param('threadId') threadId: string,
+    ) {
+        return this.threadsService.getThreadWithDetails(threadId);
     }
 
     @Roles(Role.USER)

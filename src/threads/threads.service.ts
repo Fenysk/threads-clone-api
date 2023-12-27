@@ -9,11 +9,17 @@ export class ThreadsService {
     async getMyFollowingFeed(userId: string) {
 
         const threads = await this.prismaService.thread.findMany({
-            where: { User: { Followings: { some: { followerId: userId } } } },
+            where: {
+                OR: [
+                    { userId },
+                    { User: { Followings: { some: { followerId: userId } } } }
+                ]
+            },
             orderBy: { createdAt: 'desc' },
             include: {
                 User: { include: { Profile: true } },
                 Poll: { include: { Options: true } },
+                Likes: true,
             },
         });
 
@@ -27,13 +33,31 @@ export class ThreadsService {
         const threads = await this.prismaService.thread.findMany({
             where: { userId },
             orderBy: { createdAt: 'desc' },
-            include: { Poll: { include: { Options: true } }, },
+            include: {
+                Poll: { include: { Options: true } },
+                Likes: true,
+            },
         });
 
         if (!threads.length)
             throw new NotFoundException('No threads found');
 
         return threads;
+    }
+
+    async getThreadWithDetails(threadId: string) {
+        const thread = await this.prismaService.thread.findUnique({
+            where: { id: threadId },
+            include: {
+                Poll: { include: { Options: true } },
+                Likes: { include: { User: { include: { Profile: true } } } },
+            },
+        });
+
+        if (!thread)
+            throw new NotFoundException('Thread not found');
+
+        return thread;
     }
 
     async publishThreads(userId: string, threads: any[]) {
@@ -72,7 +96,7 @@ export class ThreadsService {
 
             return { success: true, thread: newThread };
 
-        // Publish multiple threads without poll
+            // Publish multiple threads without poll
         } else {
             threads.map(thread => {
                 if (thread.Poll)

@@ -8,6 +8,7 @@ import { EmailModule } from './email/email.module';
 import { ConfigModule } from '@nestjs/config';
 import { FollowsModule } from './follows/follows.module';
 import { ThreadsModule } from './threads/threads.module';
+import { LikesModule } from './likes/likes.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { ThreadsModule } from './threads/threads.module';
     EmailModule,
     FollowsModule,
     ThreadsModule,
+    LikesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
