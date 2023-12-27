@@ -9,6 +9,7 @@ import { ConfigModule } from '@nestjs/config';
 import { FollowsModule } from './follows/follows.module';
 import { ThreadsModule } from './threads/threads.module';
 import { LikesModule } from './likes/likes.module';
+import { PollsModule } from './polls/polls.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { LikesModule } from './likes/likes.module';
     FollowsModule,
     ThreadsModule,
     LikesModule,
+    PollsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

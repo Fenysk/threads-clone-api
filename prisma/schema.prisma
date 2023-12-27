@@ -30,7 +30,7 @@ model User {
   Followers  Follow[]   @relation("FollowersRelation")
   Threads    Thread[]
   PollVotes  PollVote[]
-  Likes       Like[]
+  Likes      Like[]
 
   @@map("users")
 }
@@ -81,7 +81,7 @@ model Thread {
 
   Children Thread[] @relation("ThreadsRelation")
   Poll     Poll?
-  Likes      Like[]
+  Likes    Like[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -135,8 +135,6 @@ model PollOption {
 }
 
 model PollVote {
-  id String @id @unique
-
   pollOptionId String
   PollOption   PollOption @relation(fields: [pollOptionId], references: [id], onDelete: Cascade)
 
@@ -146,6 +144,7 @@ model PollVote {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@unique([pollOptionId, userId])
   @@map("poll_votes")
 }
 
