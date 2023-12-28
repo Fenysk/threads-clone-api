@@ -6,7 +6,9 @@ import { v4 as uuidv4 } from 'uuid';
 export class ThreadsService {
     constructor(private readonly prismaService: PrismaService) { }
 
-    async getMyFollowingFeed(userId: string) {
+    async getMyFollowingFeed(userId: string, page: number = 1) {
+
+        const limit = 10;
 
         const threads = await this.prismaService.thread.findMany({
             where: {
@@ -17,7 +19,6 @@ export class ThreadsService {
                 HiddenThreads: { none: { userId } },
                 User: { HidedBy: { none: { userId } } },
             },
-            orderBy: { createdAt: 'desc' },
             include: {
                 User: { include: { Profile: true } },
                 Poll: { include: { Options: true } },
@@ -25,6 +26,9 @@ export class ThreadsService {
                 Reposts: true,
                 Children: true,
             },
+            orderBy: { createdAt: 'desc' },
+            skip: (page - 1) * limit,
+            take: limit,
         });
 
         if (!threads.length)

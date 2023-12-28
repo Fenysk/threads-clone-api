@@ -16,6 +16,15 @@ export class ThreadsController {
     }
 
     @Roles(Role.USER)
+    @Get('feed/following/:page')
+    async getMyFollowingFeedPaginated(
+        @GetUser('sub') userId: string,
+        @Param('page') page: string,
+    ) {
+        return this.threadsService.getMyFollowingFeed(userId, +page);
+    }
+
+    @Roles(Role.USER)
     @Get('mine')
     async getMyThreads(
         @GetUser('sub') userId: string,
