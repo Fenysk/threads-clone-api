@@ -14,7 +14,8 @@ export class ThreadsService {
                     { userId },
                     { User: { Followings: { some: { followerId: userId } } } }
                 ],
-                HiddenThreads: { none: { userId } }
+                HiddenThreads: { none: { userId } },
+                User: { HidedBy: { none: { userId } } },
             },
             orderBy: { createdAt: 'desc' },
             include: {

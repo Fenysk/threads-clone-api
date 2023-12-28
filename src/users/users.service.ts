@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { InputUserDto } from './dto';
 import { v4 as uuidv4 } from 'uuid';
@@ -20,6 +20,15 @@ export class UsersService {
         users.forEach(user => delete user.password);
 
         return users;
+    }
+
+    async getHiddenUsers(userId: string): Promise<any[]> {
+        const hiddenUsers = await this.prismaService.hiddenUsers.findMany({ where: { userId } });
+
+        if (!hiddenUsers.length)
+            throw new NotFoundException('No hidden users found');
+
+        return hiddenUsers;
     }
 
     async getUserById(id: string): Promise<any> {
@@ -126,6 +135,49 @@ export class UsersService {
             console.log(error);
         }
 
+    }
+
+    async hideUser(userId: string, userToHideId: string) {
+        const user = await this.prismaService.user.findUnique({
+            where: { id: userId }
+        });
+
+        const userToHide = await this.prismaService.user.findUnique({
+            where: { id: userToHideId }
+        });
+
+        if (user.id === userToHide.id)
+            throw new ConflictException('You cannot hide yourself');
+
+        await this.prismaService.hiddenUsers.create({
+            data: {
+                userId: user.id,
+                hiddenUserId: userToHide.id
+            }
+        });
+
+        return { success: true };
+    }
+
+    async showUser(userId: string, userToShowId: string) {
+        const user = await this.prismaService.user.findUnique({
+            where: { id: userId }
+        });
+
+        const userToShow = await this.prismaService.user.findUnique({
+            where: { id: userToShowId }
+        });
+
+        await this.prismaService.hiddenUsers.delete({
+            where: {
+                userId_hiddenUserId: {
+                    userId: user.id,
+                    hiddenUserId: userToShow.id
+                }
+            }
+        });
+
+        return { success: true };
     }
 
 }

@@ -33,8 +33,25 @@ model User {
   Likes         Like[]
   Reposts       Repost[]
   HiddenThreads HiddenThreads[]
+  HiddenUsers   HiddenUsers[]   @relation("HiddenUsers")
+  HidedBy       HiddenUsers[]   @relation("HidedBy")
 
   @@map("users")
+}
+
+model HiddenUsers {
+  userId String
+  User   User   @relation("HiddenUsers", fields: [userId], references: [id], onDelete: Cascade)
+
+  hiddenUserId String
+  HiddenUser   User   @relation("HidedBy", fields: [hiddenUserId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@id([userId, hiddenUserId])
+  @@unique([userId, hiddenUserId])
+  @@map("hidden_users")
 }
 
 model Profile {

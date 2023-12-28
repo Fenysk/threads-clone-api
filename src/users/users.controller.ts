@@ -18,6 +18,12 @@ export class UsersController {
         return user;
     }
 
+    @Roles(Role.USER)
+    @Get('hidden')
+    async getHiddenUsers(@GetUser('sub') userId: string): Promise<object[]> {
+        return await this.usersService.getHiddenUsers(userId);
+    }
+
     @Roles(Role.ADMIN)
     @Get(':user_id')
     async getUserById(@Param('user_id') user_id: string): Promise<object> {
@@ -66,5 +72,24 @@ export class UsersController {
     async deleteMyAccount(@GetUser('sub') user_id: string): Promise<string> {
         return await this.usersService.deleteUser(user_id);
     }
+
+    @Roles(Role.USER)
+    @Put('hide/:userId')
+    async hideUser(
+        @GetUser('sub') userId: string,
+        @Param('userId') userToHide: string
+    ): Promise<object> {
+        return await this.usersService.hideUser(userId, userToHide);
+    }
+
+    @Roles(Role.USER)
+    @Put('show/:userId')
+    async showUser(
+        @GetUser('sub') userId: string,
+        @Param('userId') userToShow: string
+    ): Promise<object> {
+        return await this.usersService.showUser(userId, userToShow);
+    }
+
 
 }
