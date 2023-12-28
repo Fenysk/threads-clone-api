@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
 import { ThreadsService } from './threads.service';
 import { Role } from 'src/users/entities';
 import { GetUser, Roles } from 'src/users/decorator';
@@ -21,6 +21,14 @@ export class ThreadsController {
         @GetUser('sub') userId: string,
     ) {
         return this.threadsService.getMyThreads(userId);
+    }
+
+    @Roles(Role.USER)
+    @Get('hidden')
+    async getHiddenThreads(
+        @GetUser('sub') userId: string,
+    ) {
+        return this.threadsService.getHiddenThreads(userId);
     }
 
     @Roles(Role.USER)
@@ -49,12 +57,31 @@ export class ThreadsController {
         return this.threadsService.deleteMyThread(userId, threadId);
     }
 
+    // DEVELOPMENT ONLY
     @Roles(Role.USER)
     @Delete('mine/all')
     async deleteAllMyThreads(
         @GetUser('sub') userId: string,
     ) {
-        return this.threadsService.deleteAllMyThreads(userId);
+        return this.threadsService.deleteAllUserThreads(userId);
+    }
+
+    @Roles(Role.USER)
+    @Put('hide/:threadId')
+    async hideThreadForAll(
+        @GetUser('sub') userId: string,
+        @Param('threadId') threadId: string,
+    ) {
+        return this.threadsService.hideThreadForAll(userId, threadId);
+    }
+
+    @Roles(Role.USER)
+    @Put('show/:threadId')
+    async showThreadForAll(
+        @GetUser('sub') userId: string,
+        @Param('threadId') threadId: string,
+    ) {
+        return this.threadsService.showThreadForAll(userId, threadId);
     }
 
 }

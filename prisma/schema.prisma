@@ -71,9 +71,11 @@ model Follow {
 }
 
 model Thread {
-  id      String  @id @unique
-  content String  @db.VarChar(500)
-  subject String? @db.VarChar(50)
+  id           String  @id @unique
+  content      String  @db.VarChar(500)
+  subject      String? @db.VarChar(50)
+  hiddenForAll Boolean @default(false)
+  hiddenBy     String?
 
   userId String
   User   User   @relation(fields: [userId], references: [id], onDelete: Cascade)

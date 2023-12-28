@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -20,6 +20,8 @@ export class ThreadsService {
                 User: { include: { Profile: true } },
                 Poll: { include: { Options: true } },
                 Likes: true,
+                Reposts: true,
+                Children: true,
             },
         });
 
@@ -36,8 +38,29 @@ export class ThreadsService {
             include: {
                 Poll: { include: { Options: true } },
                 Likes: true,
+                Reposts: true,
+                Children: true,
             },
         });
+
+        if (!threads.length)
+            throw new NotFoundException('No threads found');
+
+        return threads;
+    }
+
+    async getHiddenThreads(userId: string) {
+        const threads = await this.prismaService.thread.findMany({
+            where: { hiddenForAll: true },
+            include: {
+                User: { include: { Profile: true } },
+                Poll: { include: { Options: true } },
+                Likes: true,
+                Reposts: true,
+            },
+        });
+
+        console.log(threads);
 
         if (!threads.length)
             throw new NotFoundException('No threads found');
@@ -51,6 +74,7 @@ export class ThreadsService {
             include: {
                 Poll: { include: { Options: true } },
                 Likes: { include: { User: { include: { Profile: true } } } },
+                Reposts: { include: { User: { include: { Profile: true } } } },
             },
         });
 
@@ -127,9 +151,54 @@ export class ThreadsService {
         return { success: true };
     }
 
-    async deleteAllMyThreads(userId: string) {
+    // DEVELOPMENT ONLY
+    async deleteAllUserThreads(userId: string) {
         await this.prismaService.thread.deleteMany({
             where: { userId },
+        });
+
+        return { success: true };
+    }
+
+    async hideThreadForAll(userId: string, threadId: string) {
+
+        const thread = await this.prismaService.thread.findUniqueOrThrow({
+            where: { id: threadId }
+        });
+
+        if (thread.hiddenForAll)
+            throw new ConflictException('Thread is already hidden');
+
+        await this.prismaService.thread.update({
+            where: {
+                id: threadId,
+                // userId: { not: userId }
+            },
+            data: {
+                hiddenForAll: true,
+                hiddenBy: userId
+            },
+        });
+
+        return { success: true };
+    }
+
+    async showThreadForAll(userId: string, threadId: string) {
+
+        const thread = await this.prismaService.thread.findUniqueOrThrow({ where: { id: threadId } });
+
+        if (!thread.hiddenForAll)
+            throw new ConflictException('Thread is already visible');
+
+        await this.prismaService.thread.update({
+            where: {
+                id: threadId,
+                // userId: { not: userId }
+            },
+            data: {
+                hiddenForAll: false,
+                hiddenBy: null
+            },
         });
 
         return { success: true };
