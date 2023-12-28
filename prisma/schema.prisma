@@ -25,13 +25,14 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  Profile    Profile?
-  Followings Follow[]   @relation("FollowingRelation")
-  Followers  Follow[]   @relation("FollowersRelation")
-  Threads    Thread[]
-  PollVotes  PollVote[]
-  Likes      Like[]
-  Reposts    Repost[]
+  Profile       Profile?
+  Followings    Follow[]        @relation("FollowingRelation")
+  Followers     Follow[]        @relation("FollowersRelation")
+  Threads       Thread[]
+  PollVotes     PollVote[]
+  Likes         Like[]
+  Reposts       Repost[]
+  HiddenThreads HiddenThreads[]
 
   @@map("users")
 }
@@ -83,15 +84,31 @@ model Thread {
   parentId String?
   Parent   Thread? @relation("ThreadsRelation", fields: [parentId], references: [id], onDelete: Cascade)
 
-  Children Thread[] @relation("ThreadsRelation")
-  Poll     Poll?
-  Likes    Like[]
-  Reposts  Repost[]
+  Children      Thread[]        @relation("ThreadsRelation")
+  Poll          Poll?
+  Likes         Like[]
+  Reposts       Repost[]
+  HiddenThreads HiddenThreads[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@map("threads")
+}
+
+model HiddenThreads {
+  userId String
+  User   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  threadId String
+  Thread   Thread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@id([userId, threadId])
+  @@unique([userId, threadId])
+  @@map("hiddens")
 }
 
 model Like {

@@ -13,7 +13,8 @@ export class ThreadsService {
                 OR: [
                     { userId },
                     { User: { Followings: { some: { followerId: userId } } } }
-                ]
+                ],
+                HiddenThreads: { none: { userId } }
             },
             orderBy: { createdAt: 'desc' },
             include: {
@@ -49,7 +50,28 @@ export class ThreadsService {
         return threads;
     }
 
-    async getHiddenThreads(userId: string) {
+    async getHiddenThreadsForMe(userId: string) {
+        const threads = await this.prismaService.hiddenThreads.findMany({
+            where: { userId },
+            include: {
+                Thread: {
+                    include: {
+                        User: { include: { Profile: true } },
+                        Poll: { include: { Options: true } },
+                        Likes: true,
+                        Reposts: true,
+                    }
+                }
+            }
+        });
+
+        if (!threads.length)
+            throw new NotFoundException('No threads found');
+
+        return threads;
+    }
+
+    async getHiddenAnswers(userId: string) {
         const threads = await this.prismaService.thread.findMany({
             where: { hiddenForAll: true },
             include: {
@@ -160,7 +182,42 @@ export class ThreadsService {
         return { success: true };
     }
 
-    async hideThreadForAll(userId: string, threadId: string) {
+    async hideThreadForMe(userId: string, threadId: string) {
+
+        const thread = await this.prismaService.thread.findUnique({
+            where: { id: threadId }
+        });
+
+        if (thread.userId === userId)
+            throw new ConflictException('You can not hide your own thread');
+
+        await this.prismaService.hiddenThreads.create({
+            data: {
+                threadId,
+                userId
+            }
+        });
+
+        return { success: true };
+    }
+
+    async showThreadForMe(userId: string, threadId: string) {
+
+        const thread = await this.prismaService.hiddenThreads.findUnique({
+            where: { userId_threadId: { userId, threadId } }
+        });
+
+        if (!thread)
+            throw new ConflictException('Thread is already visible');
+
+        await this.prismaService.hiddenThreads.delete({
+            where: { userId_threadId: { userId, threadId } }
+        });
+
+        return { success: true };
+    }
+
+    async hideAnswerForAll(userId: string, threadId: string) {
 
         const thread = await this.prismaService.thread.findUniqueOrThrow({
             where: { id: threadId }
@@ -172,7 +229,7 @@ export class ThreadsService {
         await this.prismaService.thread.update({
             where: {
                 id: threadId,
-                // userId: { not: userId }
+                userId: { not: userId }
             },
             data: {
                 hiddenForAll: true,
@@ -183,7 +240,7 @@ export class ThreadsService {
         return { success: true };
     }
 
-    async showThreadForAll(userId: string, threadId: string) {
+    async showAnswerForAll(userId: string, threadId: string) {
 
         const thread = await this.prismaService.thread.findUniqueOrThrow({ where: { id: threadId } });
 
@@ -193,7 +250,7 @@ export class ThreadsService {
         await this.prismaService.thread.update({
             where: {
                 id: threadId,
-                // userId: { not: userId }
+                userId: { not: userId }
             },
             data: {
                 hiddenForAll: false,

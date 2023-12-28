@@ -24,11 +24,19 @@ export class ThreadsController {
     }
 
     @Roles(Role.USER)
-    @Get('hidden')
-    async getHiddenThreads(
+    @Get('hidden/me')
+    async getHiddenThreadsForMe(
         @GetUser('sub') userId: string,
     ) {
-        return this.threadsService.getHiddenThreads(userId);
+        return this.threadsService.getHiddenThreadsForMe(userId);
+    }
+
+    @Roles(Role.USER)
+    @Get('hidden/answers')
+    async getHiddenAnswers(
+        @GetUser('sub') userId: string,
+    ) {
+        return this.threadsService.getHiddenAnswers(userId);
     }
 
     @Roles(Role.USER)
@@ -68,20 +76,38 @@ export class ThreadsController {
 
     @Roles(Role.USER)
     @Put('hide/:threadId')
-    async hideThreadForAll(
+    async hideThreadForMe(
         @GetUser('sub') userId: string,
         @Param('threadId') threadId: string,
     ) {
-        return this.threadsService.hideThreadForAll(userId, threadId);
+        return this.threadsService.hideThreadForMe(userId, threadId);
     }
 
     @Roles(Role.USER)
     @Put('show/:threadId')
-    async showThreadForAll(
+    async showThreadForMe(
         @GetUser('sub') userId: string,
         @Param('threadId') threadId: string,
     ) {
-        return this.threadsService.showThreadForAll(userId, threadId);
+        return this.threadsService.showThreadForMe(userId, threadId);
+    }
+
+    @Roles(Role.USER)
+    @Put('hide/answer/:threadId')
+    async hideAnswerForAll(
+        @GetUser('sub') userId: string,
+        @Param('threadId') threadId: string,
+    ) {
+        return this.threadsService.hideAnswerForAll(userId, threadId);
+    }
+
+    @Roles(Role.USER)
+    @Put('show/answer/:threadId')
+    async showAnswerForAll(
+        @GetUser('sub') userId: string,
+        @Param('threadId') threadId: string,
+    ) {
+        return this.threadsService.showAnswerForAll(userId, threadId);
     }
 
 }
