@@ -59,6 +59,24 @@ export class UsersService {
         return user;
     }
 
+    async getUserByPseudo(pseudo: string): Promise<any> {
+        const user = await this.prismaService.profile.findUniqueOrThrow({
+            where: { pseudo },
+            include: {
+                User: {
+                    select: {
+                        id: true,
+                        createdAt: true,
+                        updatedAt: true,
+                        isPrivate: true,
+                    }
+                }
+            }
+        });
+
+        return user;
+    }
+
     async createUser(data: InputUserDto): Promise<object> {
         const newUser = await this.prismaService.user.create({
             data: {

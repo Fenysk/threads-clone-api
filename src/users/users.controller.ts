@@ -24,6 +24,12 @@ export class UsersController {
         return await this.usersService.getHiddenUsers(userId);
     }
 
+    @Roles(Role.USER)
+    @Get('pseudo/:pseudo')
+    async getUserByPseudo(@Param('pseudo') pseudo: string): Promise<object> {
+        return await this.usersService.getUserByPseudo(pseudo);
+    }
+
     @Roles(Role.ADMIN)
     @Get(':user_id')
     async getUserById(@Param('user_id') user_id: string): Promise<object> {
