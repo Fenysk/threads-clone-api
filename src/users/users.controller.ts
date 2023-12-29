@@ -14,8 +14,8 @@ export class UsersController {
     }
 
     @Get('me')
-    async getMe(@GetUser() user: any): Promise<object> {
-        return user;
+    async getMe(@GetUser('sub') userId: string): Promise<object> {
+        return await this.usersService.getUserById(userId);
     }
 
     @Roles(Role.USER)

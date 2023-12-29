@@ -69,7 +69,8 @@ export class UsersService {
                         createdAt: true,
                         updatedAt: true,
                         isPrivate: true,
-                    }
+                        Followers: true,
+                    },
                 }
             }
         });
