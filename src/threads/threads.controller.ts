@@ -49,6 +49,14 @@ export class ThreadsController {
     }
 
     @Roles(Role.USER)
+    @Get('pseudo/:pseudo')
+    async getUserThreadsByPseudo(
+        @Param('pseudo') pseudo: string,
+    ) {
+        return this.threadsService.getUserThreadsByPseudo(pseudo);
+    }
+
+    @Roles(Role.USER)
     @Get(':threadId')
     async getThread(
         @Param('threadId') threadId: string,

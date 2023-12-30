@@ -111,6 +111,23 @@ export class ThreadsService {
         return thread;
     }
 
+    async getUserThreadsByPseudo(pseudo: string) {
+        const threads = await this.prismaService.thread.findMany({
+            where: { User: { Profile: { pseudo } } },
+            include: {
+                User: { include: { Profile: true } },
+                Poll: { include: { Options: true } },
+                Likes: true,
+                Reposts: true,
+            },
+        });
+
+        if (!threads.length)
+            throw new NotFoundException('No threads found');
+
+        return threads;
+    }
+
     async publishThreads(userId: string, threads: any[]) {
 
         // Publish a single thread with poll
