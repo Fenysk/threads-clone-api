@@ -100,6 +100,7 @@ export class ThreadsService {
         const thread = await this.prismaService.thread.findUnique({
             where: { id: threadId },
             include: {
+                User: { include: { Profile: true } },
                 Poll: { include: { Options: true } },
                 Likes: { include: { User: { include: { Profile: true } } } },
                 Reposts: { include: { User: { include: { Profile: true } } } },
