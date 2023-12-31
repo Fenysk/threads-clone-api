@@ -44,9 +44,9 @@ export class ThreadsService {
             orderBy: { createdAt: 'desc' },
             include: {
                 Poll: { include: { Options: true } },
-                Likes: true,
-                Reposts: true,
-                Children: true,
+                Likes: { include: { User: { include: { Profile: true } } } },
+                Reposts: { include: { User: { include: { Profile: true } } } },
+                Children: { include: { User: { include: { Profile: true } } } },
             },
         });
 
@@ -115,11 +115,12 @@ export class ThreadsService {
     async getUserThreadsByPseudo(pseudo: string) {
         const threads = await this.prismaService.thread.findMany({
             where: { User: { Profile: { pseudo } } },
+            orderBy: { createdAt: 'desc' },
             include: {
                 User: { include: { Profile: true } },
                 Poll: { include: { Options: true } },
-                Likes: true,
-                Reposts: true,
+                Likes: { include: { User: { include: { Profile: true } } } },
+                Reposts: { include: { User: { include: { Profile: true } } } },
             },
         });
 
